@@ -1,43 +1,109 @@
-# Next.js on Netlify Platform Starter
+# StockPulse — Military Inventory Management System
 
-[Live Demo](https://nextjs-platform-starter.netlify.app/)
+Система управління логістикою військових складів, побудована на **Next.js 16** (App Router) з підтримкою деплою на **Netlify**.
 
-A modern starter based on Next.js 16 (App Router), Tailwind, and [Netlify Core Primitives](https://docs.netlify.com/core/overview/#develop) (Edge Functions, Image CDN, Blob Store).
+## Стек технологій
 
-In this site, Netlify Core Primitives are used both implictly for running Next.js features (e.g. Route Handlers, image optimization via `next/image`, and more) and also explicitly by the user code.
+- **Frontend**: Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v3
+- **UI Components**: shadcn/ui (Radix UI), Lucide Icons
+- **State Management**: TanStack Query v5
+- **Forms**: React Hook Form + Zod validation
+- **Auth**: iron-session (cookie-based sessions)
+- **Storage**: In-Memory (прототип; скидається при перезапуску/cold start)
+- **Deployment**: Netlify з @netlify/plugin-nextjs
 
-Implicit usage means you're using any Next.js functionality and everything "just works" when deployed - all the plumbing is done for you. Explicit usage is framework-agnostic and typically provides more features than what Next.js exposes.
+## Запуск локально
 
-## Deploying to Netlify
-
-Click the button below to deploy this template to your Netlify account.
-
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/netlify-templates/next-platform-starter)
-
-## Developing Locally
-
-1. Clone this repository, then run `npm install` in its root directory.
-
-2. For the starter to have full functionality locally (e.g. edge functions, blob store), please ensure you have an up-to-date version of Netlify CLI. Run:
-
-```
-npm install netlify-cli@latest -g
+```bash
+npm install
+npm run dev
 ```
 
-3. Link your local repository to the deployed Netlify site. This will ensure you're using the same runtime version for both local development and your deployed site.
+Відкрити [http://localhost:3000](http://localhost:3000)
+
+**Дані для входу:**
+- Логін: `admin`
+- Пароль: `admin123`
+
+## Збірка
+
+```bash
+npm run build
+```
+
+## Деплой на Netlify
+
+1. Завантажити репозиторій на GitHub
+2. Підключити репозиторій до Netlify
+3. Netlify автоматично підхопить `netlify.toml` та зберe проєкт
+4. Встановити `SESSION_SECRET` у Environment Variables Netlify
+
+Або через Netlify CLI:
+```bash
+npx netlify-cli deploy --prod
+```
+
+## Структура проєкту
 
 ```
-netlify link
+src/
+├── app/
+│   ├── api/                  # API Route Handlers (backend)
+│   │   ├── auth/
+│   │   │   ├── login/        # POST /api/auth/login
+│   │   │   ├── logout/       # POST /api/auth/logout
+│   │   │   └── me/           # GET /api/auth/me
+│   │   ├── products/         # CRUD /api/products
+│   │   ├── categories/       # GET /api/categories
+│   │   ├── stats/            # GET /api/stats
+│   │   └── users/            # CRUD /api/users (admin)
+│   ├── globals.css           # Tailwind CSS + тема
+│   ├── layout.tsx            # Root layout
+│   └── page.tsx              # Entry point (auth gate)
+├── components/
+│   ├── pages/                # Page components
+│   │   ├── login.tsx
+│   │   ├── dashboard.tsx
+│   │   ├── products.tsx
+│   │   ├── product-form.tsx
+│   │   └── users.tsx
+│   ├── ui/                   # shadcn/ui components
+│   ├── app-shell.tsx         # Layout з sidebar
+│   └── providers.tsx         # React Query + Auth providers
+├── hooks/
+│   ├── use-auth.tsx          # Auth context + hooks
+│   └── use-toast.ts          # Toast notifications
+└── lib/
+    ├── auth.ts               # iron-session auth helpers
+    ├── queryClient.ts        # TanStack Query config
+    ├── schema.ts             # Types, Zod schemas, constants
+    ├── storage.ts            # In-Memory storage (singleton)
+    └── utils.ts              # cn() helper
 ```
 
-4. Then, run the Next.js development server via Netlify CLI:
+## Особливості
 
-```
-netlify dev
-```
+- **Військовий профіль**: 21 звання ЗСУ, 5 рівнів допуску, позивний, підрозділ
+- **Ролі**: admin (повний доступ) та user (тільки продукти)
+- **Dashboard**: статистика, алерти low stock / out of stock
+- **Products**: CRUD, пошук, фільтр категорій, сортування
+- **Users**: створення/редагування/видалення (тільки admin)
+- **Dark mode**: підтримка темної теми
+- **Cookie-based auth**: iron-session (серверна сесія)
 
-If your browser doesn't navigate to the site automatically, visit [localhost:8888](http://localhost:8888).
+## Відмінності від Express-версії
 
-## Resources
+| Express + Vite (попередня)     | Next.js (поточна)              |
+|-------------------------------|-------------------------------|
+| Express routes                | Next.js Route Handlers        |
+| passport + express-session    | iron-session                  |
+| wouter (hash routing)         | Client-side state routing     |
+| Vite dev server               | Next.js Turbopack             |
+| `__PORT_5000__` proxy         | Same-origin API calls         |
+| Manual build script           | `next build`                  |
 
-- Check out the [Next.js on Netlify docs](https://docs.netlify.com/frameworks/next-js/overview/)
+## Обмеження прототипу
+
+- In-Memory storage скидається при кожному перезапуску сервера
+- На Netlify serverless — storage скидається при cold start
+- Для production потрібна база даних (PostgreSQL з Drizzle ORM)

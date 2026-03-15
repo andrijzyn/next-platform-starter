@@ -1,0 +1,148 @@
+"use client";
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginData } from "@/lib/schema";
+import { useAuth } from "@/hooks/use-auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Shield, Eye, EyeOff, Loader2 } from "lucide-react";
+
+export default function LoginPage() {
+  const { login } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+
+  const form = useForm<LoginData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { username: "", password: "" },
+  });
+
+  const onSubmit = async (data: LoginData) => {
+    setIsPending(true);
+    try {
+      await login(data);
+    } catch {
+      // Error handled by AuthProvider toast
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <div className="w-full max-w-[380px] space-y-6">
+        {/* Logo + Title */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary/10 mx-auto">
+            <Shield className="h-7 w-7 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight" data-testid="text-app-title">
+              StockPulse
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">Система управління складом</p>
+          </div>
+        </div>
+
+        {/* Login Card */}
+        <Card className="border-border/50">
+          <CardHeader className="pb-4 pt-5 px-5">
+            <p className="text-sm font-medium text-foreground">Вхід до системи</p>
+          </CardHeader>
+          <CardContent className="px-5 pb-5">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-medium">Логін</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Введіть логін"
+                          autoComplete="username"
+                          data-testid="input-username"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-medium">Пароль</FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Введіть пароль"
+                            autoComplete="current-password"
+                            className="pr-10"
+                            data-testid="input-password"
+                            {...field}
+                          />
+                        </FormControl>
+                        <button
+                          type="button"
+                          className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                          onClick={() => setShowPassword(!showPassword)}
+                          tabIndex={-1}
+                          data-testid="button-toggle-password"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isPending}
+                  data-testid="button-login"
+                >
+                  {isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Вхід...
+                    </>
+                  ) : (
+                    "Увійти"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+
+        {/* Hint */}
+        <p className="text-center text-xs text-muted-foreground">
+          Доступ надається адміністратором системи
+        </p>
+      </div>
+    </div>
+  );
+}
