@@ -1,8 +1,12 @@
-# StockPulse — Military Inventory Management System
+# [StockPulse — Military Inventory Management System](https://timely-croissant-26e162.netlify.app/)
 
 Система управління логістикою військових складів, побудована на **Next.js 16** (App Router) з **Supabase** (PostgreSQL) та підтримкою деплою на **Netlify**.
 
 Власна система аутентифікації користувачів була зроблена щоб зменшити підв'язку до зовнішнього сервісу та полегшити майбутню міграцію під інші БД. Це необхідно для більш гнучкого розгортування системи у полі на локалькій БД.
+
+Стан БД - [link](https://timely-croissant-26e162.netlify.app/api/debug)
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/bdf2edfe-59ca-4dc1-a32a-fd8d85621657/deploy-status)](https://app.netlify.com/projects/timely-croissant-26e162/deploys)
 
 ## TODO:
 - [x] Реалізувати CRUD систему на InMemory БД
